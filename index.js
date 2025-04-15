@@ -7,10 +7,12 @@ dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use("/uploads", express.static("uploads"));
+const path = require("path");
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 const user_routes = require("./routes/authRoutes");
+const item_routes = require("./routes/itemRoutes");
 app.use("/", user_routes);
-
+app.use("/items", item_routes); 
 
 app.listen(APP_PORT, () => {
     console.log(`Example app listening on port ${APP_PORT}`);

@@ -1,43 +1,17 @@
 const express = require("express");
 const router = express.Router();
 const auth = require("../middleware/authMiddleware");
-const Item = require("../models/Item");
 const upload = require("../utils/upload");
+const { folder, file, getItemsFilesByUser, deleteItem, getItemsFilesDetailsByUser, getItemsFileByName, deleteFilesByFolderName } = require("../controllers/ItemController");
 
-// Create folder
-router.post("/folder", auth, async (req, res) => {
-  const item = await Item.create({
-    name: req.body.name,
-    type: "folder",
-    parent: req.body.parent || null,
-    user: req.user._id,
-  });
-  res.json(item);
-});
+// Make sure each handler function is properly passed
+router.post("/folder", auth, folder);
+router.post("/file", auth, upload.single("file"), file);
+router.get("/items", auth, getItemsFilesByUser);
+router.post("/folders", auth, getItemsFilesDetailsByUser);
+router.get("/file-by-name", auth, getItemsFileByName);
+router.post("/delete-by-folder", auth, deleteFilesByFolderName);
 
-// Upload file
-router.post("/file", auth, upload.single("file"), async (req, res) => {
-  const item = await Item.create({
-    name: req.file.originalname,
-    type: "file",
-    path: req.file.path,
-    parent: req.body.parent || null,
-    user: req.user._id,
-  });
-  res.json(item);
-});
+router.delete("/:id", auth, deleteItem);
 
-// Get items in folder
-router.get("/items/:parentId?", auth, async (req, res) => {
-  const items = await Item.find({
-    parent: req.params.parentId || null,
-    user: req.user._id,
-  });
-  res.json(items);
-});
-
-// Delete item
-router.delete("/:id", auth, async (req, res) => {
-  await Item.findOneAndDelete({ _id: req.params.id, user: req.user._id });
-  res.json({ success: true });
-});
+module.exports = router;
