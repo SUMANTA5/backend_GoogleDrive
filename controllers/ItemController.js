@@ -57,23 +57,22 @@ const getItemsFilesByUser = async (req, res) => {
 
 const getItemsFilesDetailsByUser = async (req, res) => {
   try {
-
-    const query = { user: req.user._id };
-
+    const query = { 
+      user: req.user._id,
+      path: { $exists: true, $ne: null } // Only include items where 'path' exists and is not null
+    };
 
     if (req.body.folderName) {
       query.folderName = req.body.folderName;
     }
 
-
     const items = await Item.find(query);
-
-
     res.json(items);
   } catch (err) {
     res.status(500).json({ message: "Error fetching items", error: err.message });
   }
 };
+
 const getItemsFileByName = async (req, res) => {
   try {
 
